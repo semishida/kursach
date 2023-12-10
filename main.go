@@ -74,7 +74,6 @@ func main() {
 
 	myWindow.SetContent(content)
 	myWindow.ShowAndRun()
-
 }
 
 func loadData() {
@@ -132,7 +131,7 @@ func showAddEmployeeDialog(window fyne.Window, callback func()) {
 }
 
 func showChildren(window fyne.Window, employee *Employee) {
-	backButton := widget.NewButtonWithIcon("Назад", theme.NavigateBackIcon(), func() {
+	backButton := widget.NewButtonWithIcon("Назад2", theme.NavigateBackIcon(), func() {
 		showMainScreen(window)
 	})
 	childrenList := widget.NewList(
@@ -160,16 +159,18 @@ func showChildren(window fyne.Window, employee *Employee) {
 	}
 	childrenList.Resize(fyne.NewSize(1100, 700))
 	addChildButton := widget.NewButtonWithIcon("Добавить ребенка", theme.ContentAddIcon(), func() {
-		showAddChildDialog(window, employee)
-		childrenList.Refresh()
+		showAddChildDialog(window, employee, func() {
+			childrenList.Refresh()
+		})
 	})
 	addChildButton.Resize(fyne.NewSize(300, 150))
-	backButton.Resize(fyne.NewSize(300, 150))
+	backButton.Resize(fyne.NewSize(10, 10))
 
-	content = container.NewBorder(childrenList,
+	content = container.NewBorder(nil,
 		addChildButton,
-		childrenList,
+		nil,
 		backButton,
+		childrenList,
 	)
 
 	window.SetContent(content)
@@ -207,7 +208,7 @@ func showMainScreen(window fyne.Window) {
 	window.SetContent(content)
 }
 
-func showAddChildDialog(window fyne.Window, employee *Employee) {
+func showAddChildDialog(window fyne.Window, employee *Employee, callback func()) {
 	nameEntry := widget.NewEntry()
 	ageEntry := widget.NewEntry()
 	appearanceEntry := widget.NewEntry()
@@ -239,10 +240,11 @@ func showAddChildDialog(window fyne.Window, employee *Employee) {
 			saveData()
 
 			dialog.NewInformation("Child Added", "Child has been successfully added.", window).Show()
+			callback()
 		},
 	}
 
-	dialog.ShowForm("Добавить ребенка", "Добавить", "Отмена", []*widget.FormItem{form.Items[0], form.Items[1]}, func(bool) {}, window)
+	dialog.ShowForm("Добавить ребенка", "Добавить", "Отмена", form.Items, func(bool) {}, window)
 }
 
 func funcIDFunc(id widget.ListItemID) fyne.CanvasObject {
