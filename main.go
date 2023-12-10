@@ -58,19 +58,19 @@ func main() {
 		},
 	)
 
+	var addEmployeeButton *widget.Button // объявляем переменную, чтобы она была видна в main и в функции обработчика
+
 	employeeList.OnSelected = func(id widget.ListItemID) {
-		showChildren(myWindow, &employees[id])
+		showChildren(myWindow, &employees[id], addEmployeeButton)
 	}
 
-	addEmployeeButton := widget.NewButtonWithIcon("Добавить сотрудника", theme.ContentAddIcon(), func() {
-		showAddEmployeeDialog(myWindow, func() {
-			showMainScreen(myWindow)
+	addEmployeeButton = widget.NewButtonWithIcon("Добавить сотрудника", theme.ContentAddIcon(), func() {
+		showAddEmployeeDialog(myWindow, addEmployeeButton, func() {
+			showMainScreen(myWindow, addEmployeeButton)
 		})
 	})
 
-	content = container.NewBorder(nil, nil, nil, addEmployeeButton,
-		employeeList,
-	)
+	content = container.NewBorder(nil, nil, nil, addEmployeeButton, employeeList)
 
 	myWindow.SetContent(content)
 	myWindow.ShowAndRun()
@@ -102,7 +102,7 @@ func saveData() {
 	}
 }
 
-func showAddEmployeeDialog(window fyne.Window, callback func()) {
+func showAddEmployeeDialog(window fyne.Window, addEmployeeButton *widget.Button, callback func()) {
 	nameEntry := widget.NewEntry()
 	childrenEntry := widget.NewEntry()
 
@@ -123,17 +123,20 @@ func showAddEmployeeDialog(window fyne.Window, callback func()) {
 			Children: children,
 		})
 		saveData()
+		showMainScreen(window, addEmployeeButton)
 
 		dialog.NewInformation("Employee Added", "Employee has been successfully added.", window).Show()
+		callback()
 	}
 
-	dialog.ShowForm("Add Employee", "Submit", "Cancel", []*widget.FormItem{form.Items[0], form.Items[1]}, func(bool) {}, window)
+	dialog.ShowForm("Add Employee", "Submit", "Cancel", form.Items, func(bool) {}, window)
 }
 
-func showChildren(window fyne.Window, employee *Employee) {
+func showChildren(window fyne.Window, employee *Employee, addEmployeeButton *widget.Button) {
 	backButton := widget.NewButtonWithIcon("Назад2", theme.NavigateBackIcon(), func() {
-		showMainScreen(window)
+		showMainScreen(window, addEmployeeButton)
 	})
+
 	childrenList := widget.NewList(
 		func() int {
 			return len(employee.Children)
@@ -155,11 +158,12 @@ func showChildren(window fyne.Window, employee *Employee) {
 	)
 
 	childrenList.OnSelected = func(id widget.ListItemID) {
-		showChildDetails(window, &employee.Children[id])
+		showChildDetails(window, employee, addEmployeeButton, childrenList, &employee.Children[id])
 	}
 	childrenList.Resize(fyne.NewSize(1100, 700))
 	addChildButton := widget.NewButtonWithIcon("Добавить ребенка", theme.ContentAddIcon(), func() {
 		showAddChildDialog(window, employee, func() {
+			loadData()
 			childrenList.Refresh()
 		})
 	})
@@ -176,9 +180,9 @@ func showChildren(window fyne.Window, employee *Employee) {
 	window.SetContent(content)
 }
 
-func showChildDetails(window fyne.Window, child *Child) {
+func showChildDetails(window fyne.Window, employee *Employee, addEmployeeButton *widget.Button, childrenList *widget.List, child *Child) {
 	backButton := widget.NewButtonWithIcon("Назад", theme.NavigateBackIcon(), func() {
-		showMainScreen(window)
+		showChildren(window, employee, addEmployeeButton)
 	})
 
 	var content fyne.CanvasObject
@@ -202,9 +206,13 @@ func showChildDetails(window fyne.Window, child *Child) {
 	window.SetContent(content)
 }
 
-func showMainScreen(window fyne.Window) {
+func showMainScreen(window fyne.Window, addEmployeeButton *widget.Button) {
 	loadData()
 	employeeList.Refresh()
+
+	content = container.NewBorder(nil, nil, nil, addEmployeeButton, employeeList)
+
+	// Обновление содержимого главного окна
 	window.SetContent(content)
 }
 
@@ -244,7 +252,7 @@ func showAddChildDialog(window fyne.Window, employee *Employee, callback func())
 		},
 	}
 
-	dialog.ShowForm("Добавить ребенка", "Добавить", "Отмена", form.Items, func(bool) {}, window)
+	dialog.ShowForm("Add Child", "Add", "Cancel", form.Items, func(bool) {}, window)
 }
 
 func funcIDFunc(id widget.ListItemID) fyne.CanvasObject {
