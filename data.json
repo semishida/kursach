@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "John Doe",
+    "Children": [
+      {
+        "Name": "Emily",
+        "Age": 10,
+        "Appearance": "Blonde hair, blue eyes",
+        "FavoriteColor": "Pink",
+        "Comments": "Loves playing with dolls"
+      },
+      {
+        "Name": "Michael",
+        "Age": 8,
+        "Appearance": "Brown hair, green eyes",
+        "FavoriteColor": "Blue",
+        "Comments": "Enjoys playing soccer"
+      }
+    ]
+  },
+  {
+    "Name": "Alice Johnson",
+    "Children": [
+      {
+        "Name": "Sophia",
+        "Age": 7,
+        "Appearance": "Red hair, brown eyes",
+        "FavoriteColor": "Purple",
+        "Comments": "Loves drawing"
+      }
+    ]
+  }
+]
